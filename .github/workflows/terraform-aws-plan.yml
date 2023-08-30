@@ -6,23 +6,30 @@ on:
       - main
 
 jobs:
+  use-aws-sso-credentials:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Configure AWS SSO
+        run: |
+          aws sso configure
+          aws sso login --profile my-aws-sso-profile
+
+      - name: Use SSO-Generated Credentials
+        run: |
+          SSO_CREDENTIALS=$(aws sso get-role-credentials --profile my-aws-sso-profile --role-name MySSORole)
+          export AWS_ACCESS_KEY_ID=$(echo $SSO_CREDENTIALS | jq -r '.roleCredentials.accessKeyId')
+          export AWS_SECRET_ACCESS_KEY=$(echo $SSO_CREDENTIALS | jq -r '.roleCredentials.secretAccessKey')
+          export AWS_SESSION_TOKEN=$(echo $SSO_CREDENTIALS | jq -r '.roleCredentials.sessionToken')
+
   deploy:
     name: "Terraform"
     runs-on: ubuntu-latest
 
     steps:
-      - name: Configure AWS SSO
-        run: |
-          aws configure set sso_start_url https://d-9a670906b1.awsapps.com/start#
-          aws configure sso login --profile clinamad
-
-      - name: Use SSO-Generated Credentials
-        run: |
-          SSO_CREDENTIALS=$(aws sso get-role-credentials --region us-east-2 --profile clinamad --role-name ${{ secrets.AWS_ROLE_NAME }})
-          export AWS_ACCESS_KEY_ID=$(echo $SSO_CREDENTIALS | jq -r '.roleCredentials.accessKeyId')
-          export AWS_SECRET_ACCESS_KEY=$(echo $SSO_CREDENTIALS | jq -r '.roleCredentials.secretAccessKey')
-          export AWS_SESSION_TOKEN=$(echo $SSO_CREDENTIALS | jq -r '.roleCredentials.sessionToken')
-
       - name: Checkout
         uses: actions/checkout@v3
 
