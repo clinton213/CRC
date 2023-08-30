@@ -2,40 +2,41 @@ name: "terraform-infra-apply"
 
 on:
   push:
-    branches: 
-        -main
+    branches:
+      - main
 
 jobs:
-    deploy:
-        name: "Terraform"
-        runs-on: ubuntu-latest
-        
-        - name: Configure AWS SSO
-        run: |
-            aws configure set sso_start_url https://d-9a670906b1.awsapps.com/start#
-            aws configure sso login --profile clinamad
-        - name: Use SSO-Generated Credentials
-        run: |
-            SSO_CREDENTIALS=$(aws sso get-role-credentials --region us-east-2 --profile clinamad --role-name ${{ secrets.AWS_ROLE_NAME }})
-            export AWS_ACCESS_KEY_ID=$(echo $SSO_CREDENTIALS | jq -r '.roleCredentials.accessKeyId')
-            export AWS_SECRET_ACCESS_KEY=$(echo $SSO_CREDENTIALS | jq -r '.roleCredentials.secretAccessKey')
-            export AWS_SESSION_TOKEN=$(echo $SSO_CREDENTIALS | jq -r '.roleCredentials.sessionToken')
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-              
-            - name: Setup Terraform 
-              uses: hashicorp/setup-terraform@v2
+  deploy:
+    name: "Terraform"
+    runs-on: ubuntu-latest
 
-            - name: Terraform Init
-              uses: init
-            
-            - name: Terraform Plan
-              uses: plan
-              run: terraform plan
-              if: github.event_name == 'pull_request'
-              continue-on-error: true
-            
-            - name: Terraform Apply
-              if: github.ref == 'refs/feads/main' && github.event_name == 'push'
-              run: terraform apply -auto-approve -input=false
+    steps:
+      - name: Configure AWS SSO
+        run: |
+          aws configure set sso_start_url https://d-9a670906b1.awsapps.com/start#
+          aws configure sso login --profile clinamad
+
+      - name: Use SSO-Generated Credentials
+        run: |
+          SSO_CREDENTIALS=$(aws sso get-role-credentials --region us-east-2 --profile clinamad --role-name ${{ secrets.AWS_ROLE_NAME }})
+          export AWS_ACCESS_KEY_ID=$(echo $SSO_CREDENTIALS | jq -r '.roleCredentials.accessKeyId')
+          export AWS_SECRET_ACCESS_KEY=$(echo $SSO_CREDENTIALS | jq -r '.roleCredentials.secretAccessKey')
+          export AWS_SESSION_TOKEN=$(echo $SSO_CREDENTIALS | jq -r '.roleCredentials.sessionToken')
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -input=false
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
