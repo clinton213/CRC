@@ -1,22 +1,18 @@
-name: Deploy to S3 and Invalidate CloudFront
+name: Terraform
 
 on:
   push:
     branches:
-      - main  # Change this to your desired branch
+      - main
+    paths:
+      - 'Terraform/**'
 
 jobs:
-  deploy:
+  terraform:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: 1.0.5
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
@@ -24,12 +20,26 @@ jobs:
             role-to-assume: arn:aws:iam::769338321636:role/Github
             aws-region: us-east-2
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
       - name: Terraform Init
-        run: terraform init ./terraform
+        run: terraform init
+        working-directory: Terraform
+
+      - name: Terraform Plan
+        run: terraform plan
+        working-directory: Terraform
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve ./terraform
+        run: terraform apply -auto-approve -input=false
+        working-directory: Terraform
+
+      - name: Upload files to S3
+        run: |
+          aws s3 sync ./path/to/files s3://clintonscloud.com/
 
       - name: Invalidate CloudFront cache
         run: |
-          aws cloudfront create-invalidation --distribution-id EXOXS5WMNVOM0 --paths "/*"
+          distributionId="EXOXS5WMNVOM0"
+          aws cloudfront create-invalidation --distribution-id $distributionId --paths "/*"
