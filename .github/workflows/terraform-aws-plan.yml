@@ -32,5 +32,14 @@ jobs:
         working-directory: Terraform
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var="bucket_name=${{ secrets.BUCKET_NAME }}" -var="s3_bucket_lambda_package=${{ secrets.S3_BUCKET_LAMBDA_PACKAGE }}"
+        run: terraform apply -auto-approve -input=false
         working-directory: Terraform
+
+      - name: Upload files to S3
+        run: |
+          aws s3 sync ./path/to/files s3://clintonscloud.com/
+
+      - name: Invalidate CloudFront cache
+        run: |
+          distributionId="EXOXS5WMNVOM0"
+          aws cloudfront create-invalidation --distribution-id $distributionId --paths "/*"
