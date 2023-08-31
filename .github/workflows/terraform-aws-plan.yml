@@ -8,7 +8,7 @@ on:
       - 'Terraform/**'
 
 jobs:
-  terraform:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
