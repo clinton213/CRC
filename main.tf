@@ -38,6 +38,90 @@ resource "aws_s3_object" "site_content" {
   content_type           = "text/html" #should be specified so content can be viewed as website instead of downloaded
 }
 
+resource "aws_s3_object" "ccp_cert" {
+  bucket       = aws_s3_bucket.mysite.bucket
+  key          = "AWS Certified Cloud Practitioner certificate (2).pdf"
+  source       = "./AWS Certified Cloud Practitioner certificate (2).pdf"
+  content_type = "application/pdf"
+}
+
+resource "aws_s3_object" "sa_cert" {
+  bucket       = aws_s3_bucket.mysite.bucket
+  key          = "AWS Certified Solutions Architect - Associate certificate.pdf"
+  source       = "./AWS Certified Solutions Architect - Associate certificate.pdf"
+  content_type = "application/pdf"
+}
+
+resource "aws_s3_object" "sysops_cert" {
+  bucket       = aws_s3_bucket.mysite.bucket
+  key          = "AWS Certified SysOps Administrator - Associate certificate.pdf"
+  source       = "./AWS Certified SysOps Administrator - Associate certificate.pdf"
+  content_type = "application/pdf"
+}
+
+resource "aws_s3_object" "terraform_cert" {
+  bucket       = aws_s3_bucket.mysite.bucket
+  key          = "HashiCorp_Certified__Terraform_Associate__002__Badge20230309-28-1p347jz.pdf"
+  source       = "./HashiCorp_Certified__Terraform_Associate__002__Badge20230309-28-1p347jz.pdf"
+  content_type = "application/pdf"
+}
+
+resource "aws_s3_object" "jscript" {
+  bucket       = aws_s3_bucket.mysite.bucket
+  key          = "script.js"
+  source       = "./script.js"
+  content_type = "application/json"
+}
+
+resource "aws_s3_object" "css" {
+  bucket       = aws_s3_bucket.mysite.bucket
+  key          = "style.css"
+  source       = "./style.css"
+  content_type = "text/css"
+}
+
+resource "aws_s3_object" "ccp_badge" {
+  bucket       = aws_s3_bucket.mysite.bucket
+  key          = "ccp badge.png"
+  source       = "./ccp badge.png"
+  content_type = "image/png"
+}
+
+resource "aws_s3_object" "sa_badge" {
+  bucket       = aws_s3_bucket.mysite.bucket
+  key          = "saa badge.png"
+  source       = "./saa badge.png"
+  content_type = "image/png"
+}
+
+resource "aws_s3_object" "sysops_badge" {
+  bucket       = aws_s3_bucket.mysite.bucket
+  key          = "sysops badge.png"
+  source       = "./sysops badge.png"
+  content_type = "image/png"
+}
+
+resource "aws_s3_object" "terraform_badge" {
+  bucket       = aws_s3_bucket.mysite.bucket
+  key          = "terraform badge.png"
+  source       = "./terraform badge.png"
+  content_type = "image/png"
+}
+
+resource "aws_s3_object" "Resume" {
+  bucket       = aws_s3_bucket.mysite.bucket
+  key          = "ClintonAmadiResume.docx"
+  source       = "./ClintonAmadiResume.docx"
+  content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+}
+
+resource "aws_s3_object" "main_img" {
+  bucket       = aws_s3_bucket.mysite.bucket
+  key          = "IMG_8667.jpg"
+  source       = "./IMG_8667.jpg"
+  content_type = "image/jpeg"
+}
+
 resource "aws_cloudfront_origin_access_control" "mysite_access" {
   name                              = "security_pillar100_cf_s3_oac"
   origin_access_control_origin_type = "s3"
@@ -85,8 +169,8 @@ resource "aws_cloudfront_distribution" "mysite_access" {
     }
   }
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate.acm_certificate.arn
-    ssl_support_method  = "sni-only"
+    acm_certificate_arn      = aws_acm_certificate.acm_certificate.arn
+    ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }
 }
@@ -143,7 +227,7 @@ resource "aws_acm_certificate" "acm_certificate" {
 }
 
 data "aws_route53_zone" "route53_zone" {
-  name         = "clintonscloud.com"
+  name = "clintonscloud.com"
 }
 
 resource "aws_route53_record" "route53_record" {
@@ -170,7 +254,7 @@ resource "aws_acm_certificate_validation" "acm_certificate_validation" {
 
 resource "aws_route53_record" "cloudfront_record" {
   zone_id = data.aws_route53_zone.route53_zone.zone_id
-  name    = "clintonscloud.com" 
+  name    = "clintonscloud.com"
   type    = "A"
 
   alias {
@@ -182,7 +266,7 @@ resource "aws_route53_record" "cloudfront_record" {
 
 resource "aws_route53_record" "www_cloudfront_record" {
   zone_id = data.aws_route53_zone.route53_zone.zone_id
-  name    = "www.clintonscloud.com" 
+  name    = "www.clintonscloud.com"
   type    = "A"
 
   alias {
