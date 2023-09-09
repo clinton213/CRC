@@ -1,3 +1,8 @@
+provider "aws" {
+  region  = "us-east-1"
+  profile = "clinamad"
+}
+
 resource "aws_s3_bucket" "mysite" {
   bucket = "clintonscloud.com"
 }
