@@ -30,7 +30,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
-        run: terraform apply -auto-approvec
+        run: terraform apply -auto-approve
 
       - name: Upload to S3 Bucket
         run: aws s3 sync website s3://clintonscloud.com
