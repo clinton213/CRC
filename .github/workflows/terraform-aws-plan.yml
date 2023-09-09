@@ -22,15 +22,6 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::769338321636:role/Github-OIDC
           aws-region: us-east-2
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: 1.2.5  # Adjust to your desired Terraform version
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
 
       - name: Upload to S3 Bucket
         run: aws s3 sync website s3://clintonscloud.com
